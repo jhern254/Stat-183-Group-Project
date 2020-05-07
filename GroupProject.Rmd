@@ -1,5 +1,7 @@
 ---
 title: "GroupProject"
+author: "Jun Hernandez, "
+date: "May 6, 2020"
 output: pdf_document
 ---
 
