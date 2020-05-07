@@ -5,7 +5,7 @@ output: pdf_document
 
 ```{r}
 #install.packages("read_xl")
-#install.packages("tidyverse")
+#install.packages("tidyverse") # uncomment to install tidyverse and make sure you are on up to date version
 ```
 
 ```{r}
