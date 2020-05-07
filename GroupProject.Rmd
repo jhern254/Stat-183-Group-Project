@@ -8,11 +8,14 @@ output: pdf_document
 ```{r}
 #install.packages("read_xl")
 #install.packages("tidyverse") # uncomment to install tidyverse and make sure you are on up to date version
+#install.packages("rcompanion")
+#install.packages("DescTools")
 ```
 
 ```{r}
 library(tidyverse)
 library(readxl)
+library(rcompanion)
 ```
 
 ```{r}
@@ -24,3 +27,143 @@ df <- read_excel("/Users/junhernandez/Documents/A\ -\ Current\ Quarter/Stat\ 183
 head(df)
 # test
 ```
+
+#7 using # 23 data(gender - m/f)
+
+```{r}
+# get rid of first row
+df_fixed <- df[-c(1), ]
+# subset dataset for #7
+jun_df <- df_fixed %>%
+  select(	
+   culture = `UCR has a culture and environment that promotes and supports health and well-being for its faculty, staff and students.`,
+   gender =`What is your gender?`) %>%
+  filter(!(is.na(gender))) %>%
+  filter(gender == 'Male'| gender == 'Female') %>%   # only focused on male and female data
+  filter(!(is.na(culture)))   # 16 NAs filtered in culture
+
+# set vars as factor
+jun_df$culture <- as.factor(jun_df$culture)
+jun_df$gender <- as.factor(jun_df$gender)
+  
+jun_df
+
+#unique(jun_df$gender)
+#unique(jun_df$culture)
+```
+
+
+```{r}
+# based on count
+jun_df %>% ggplot(mapping = aes(x = culture)) +
+  geom_bar(aes(fill = culture)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "UCR has a culture and environment that promotes and supports health 
+       and well-being for its faculty, staff and students") +
+  theme(legend.position="none")
+# add sub title for No. of participants
+
+# based on count
+jun_df %>% ggplot(mapping = aes(x = culture)) +
+  geom_bar(aes(fill = gender)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "UCR has a culture and environment that promotes and supports health 
+       and well-being for its faculty, staff and students") 
+```
+
+```{r}
+# based on proportion
+jun_df %>% filter(gender == 'Female') %>%
+   ggplot(mapping = aes(x = culture, 
+                        y = prop.table(stat(count)),
+                        fill = culture,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Female") +
+   theme(legend.position="none")
+```
+
+```{r}
+# based on proportion
+jun_df %>% filter(gender == 'Male') %>%
+   ggplot(mapping = aes(x = culture, 
+                        y = prop.table(stat(count)),
+                        fill = culture,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Male") +
+   theme(legend.position="none")
+
+```
+
+
+
+**Chi-squared test**
+
+```{r}
+#str(jun_df)
+res <- chisq.test(jun_df$gender, jun_df$culture)
+# Access to the GoF values
+res$expected
+res$observed
+res$stdres
+# output
+res
+```
+
+
+```{r}
+tbl <- table(jun_df$culture, jun_df$gender)
+chisq.test(tbl)
+
+pairwiseNominalIndependence(tbl,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE,
+                            method = "bonferroni")
+```
+
+
+
+**ggplot proportion gender plot**
+This works well enough, will try to turn into function. Also, remember to make a temporary dataset for whatever question you are doing. Do not edit the main dataset so there will be no compatibility problems.
+```{r}
+# based on proportion
+jun_df %>% filter(gender == 'Female') %>%   # enter your data set into function, based on gender
+   ggplot(mapping = aes(x = culture,        # change x for your problem
+                        y = prop.table(stat(count)),
+                        fill = culture,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +   
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Female") +    # Change labels based on your question
+   theme(legend.position="none")
+```
+
+
+
+
+
+
