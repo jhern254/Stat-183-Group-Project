@@ -17,9 +17,10 @@ library(readxl)
 
 ```{r}
 # read in xlsx data set
-df <- read_excel("/Users/junhernandez/Documents/A\ -\ Current\ Quarter/Stat\ 183/Group\ Project/all\ responses\ data\ team\ 1.xlsx", skip = 1) # change for your computer
+df <- read_excel("/Users/junhernandez/Documents/A\ -\ Current\ Quarter/Stat\ 183/Group\ Project/all\ responses\ data\ team\ 1.xlsx") # change for your computer
 
 #View(df)
 
 head(df)
+# test
 ```
