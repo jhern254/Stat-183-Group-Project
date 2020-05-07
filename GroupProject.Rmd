@@ -1,0 +1,23 @@
+---
+title: "GroupProject"
+output: pdf_document
+---
+
+```{r}
+#install.packages("read_xl")
+#install.packages("tidyverse")
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+# read in xlsx data set
+df <- read_excel("/Users/junhernandez/Documents/A\ -\ Current\ Quarter/Stat\ 183/Group\ Project/all\ responses\ data\ team\ 1.xlsx", skip = 1) # change for your computer
+
+#View(df)
+
+head(df)
+```
