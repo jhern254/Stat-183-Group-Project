@@ -163,7 +163,7 @@ jun_df %>% filter(gender == 'Female') %>%   # enter your data set into function,
 ```
 
 
-# #5 using data from column 22  
+#5 using data from column 22  
 In which of the following categories do you place yourself?  
 
 ```{r q5 data subset}
@@ -197,7 +197,7 @@ labs(x = "Survey Response (N = 1311)", # maybe change with a formula
 y = "Number of responses",
 title = "In which of the following categories do you place yourself?") +
 theme(legend.position="none",
-axis.text.x = element_text( hjust=0.5)) + # long var names fix
+axis.text.x = element_text( hjust=0.5)) + # center align the axis labels
 geom_text(stat = 'count',
 position = position_dodge(.9),
 vjust = -0.5,
@@ -268,7 +268,29 @@ labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
 "I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
 "I have made some \nhealth behavior \nchanges within \nthe last 6 months",
 "I have been living \na healthy lifestyle \nfor at least 6 months"))
+```
 
+```{r chisquared test}
+victoria_res <- chisq.test(victoria_df$gender, victoria_df$lifestyle)
+# Access to the GoF values
+victoria_res$expected
+victoria_res$observed
+victoria_res$stdres
+# output
+victoria_res
 
+victoria_tbl <- table(victoria_df$gender, victoria_df$lifestyle)
+victoria_tbl
 
+chisq.test(victoria_tbl)
+
+pairwiseNominalIndependence(victoria_tbl,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE,
+                            method = "bonferroni")
+
+```
+
+Frequency distributions are significantly different between males and females (chi-square test p-value = .0013). More women (24%) than men(9%) state that they have been living a healthy lifestyle for at least 6 months.  
 
