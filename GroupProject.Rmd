@@ -1,6 +1,6 @@
 ---
 title: "GroupProject"
-author: "Jun Hernandez, "
+author: "Jun Hernandez, Victoria Rios, "
 date: "May 6, 2020"
 output: pdf_document
 ---
@@ -163,6 +163,111 @@ jun_df %>% filter(gender == 'Female') %>%   # enter your data set into function,
 ```
 
 
+# #5 using data from column 22  
+In which of the following categories do you place yourself?  
+
+```{r q5 data subset}
+# get rid of first row
+# commenting this out for now
+df_fixed <- df[-c(1), ]
+
+# subset dataset for #5
+victoria_df <- df_fixed %>%
+  select(	
+   lifestyle = `In which of the following categories do you place yourself?`,
+   gender =`What is your gender?`) %>%
+  filter(!(is.na(gender))) %>% #removing responses without gender
+  filter(gender == 'Male'| gender == 'Female') %>%   # removing 29 'other'
+  filter(!(is.na(lifestyle)))   # 14 NAs filtered in lifestyle (people who didn't respond)
+
+# set vars as factor
+victoria_df$lifestyle <- as.factor(victoria_df$lifestyle)
+victoria_df$gender <- as.factor(victoria_df$gender)
+  
+glimpse(victoria_df)
+```
+
+```{r q5 overview}
+# based on count
+victoria_df %>%
+ggplot(mapping = aes(x = lifestyle,
+label = stat(count))) +
+geom_bar(aes(fill = lifestyle)) +
+labs(x = "Survey Response (N = 1311)", # maybe change with a formula
+y = "Number of responses",
+title = "In which of the following categories do you place yourself?") +
+theme(legend.position="none",
+axis.text.x = element_text( hjust=0.5)) + # long var names fix
+geom_text(stat = 'count',
+position = position_dodge(.9),
+vjust = -0.5,
+size = 3) +
+# my variable names are really long
+scale_x_discrete(
+labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
+"I am thinking about \nchanging some of my \nhealth behaviors",
+"I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
+"I have made some \nhealth behavior \nchanges within \nthe last 6 months",
+"I have been living \na healthy lifestyle \nfor at least 6 months"))
+```
+
+```{r option1: facet wrap}
+# based on proportion
+victoria_df %>%
+#  filter(gender == 'Female') %>%
+ggplot(mapping = aes(x = lifestyle,
+y = prop.table(stat(count)),
+fill = lifestyle,
+label = scales::percent(prop.table(stat(count))))) +
+geom_bar(position = "dodge") +
+facet_wrap(~gender, nrow = 1) +
+geom_text(stat = 'count',
+position = position_dodge(.9),
+vjust = -0.5,
+size = 3) +
+scale_y_continuous(labels = scales::percent) +
+labs(x = "Survey Response",
+y = "Proportion of responses",
+title = "Response by Gender") +
+theme(legend.position="right",
+legend.title = element_blank(),
+legend.text = element_text(lineheight = .8),
+axis.text.x = element_blank(),
+axis.ticks.x = element_blank()) +
+scale_fill_discrete(
+labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
+"I am thinking about \nchanging some of my \nhealth behaviors",
+"I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
+"I have made some \nhealth behavior \nchanges within \nthe last 6 months",
+"I have been living \na healthy lifestyle \nfor at least 6 months"))
+```
+
+```{r option2}
+# based on proportion
+victoria_df %>%
+#  filter(gender == 'Male') %>%
+ggplot(mapping = aes(x = lifestyle,
+y = prop.table(stat(count)),
+fill = gender,
+label = scales::percent(prop.table(stat(count))))) +
+geom_bar(position = "dodge") +
+geom_text(stat = 'count',
+position = position_dodge(.9),
+vjust = -0.5,
+size = 3) +
+scale_y_continuous(labels = scales::percent) +
+labs(x = "Survey Response",
+y = "Proportion of responses",
+title = "Response by Gender") +
+theme(legend.position="none",
+axis.text.x = element_text( hjust=0.5)) + # center align the axis text)
+# my variable names are really long
+scale_x_discrete(
+labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
+"I am thinking about \nchanging some of my \nhealth behaviors",
+"I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
+"I have made some \nhealth behavior \nchanges within \nthe last 6 months",
+"I have been living \na healthy lifestyle \nfor at least 6 months"))
 
 
 
