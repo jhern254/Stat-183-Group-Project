@@ -1,6 +1,6 @@
 ---
 title: "GroupProject"
-author: "Jun Hernandez, Victoria Rios, Misha Khan, Sharvee Joshi, Awad Rula"
+author: "Jun Hernandez, Victoria Rios, Misha Khan, Sharvee Joshi, Rula Awad"
 date: "May 6, 2020"
 output: pdf_document
 ---
