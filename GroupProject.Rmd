@@ -424,6 +424,107 @@ res
 The frequency distributions are significantly different between females and males (chi-squared test p-value = 0.0001). More women agree and strongly agree that UCR has a culture and environment that promotes and supports health and well-being for its faculty, staff and students, while more men disagree, strongly disagree, and are neutral to the statement. 
 
 
+**Question 11**
+
+```{r}
+# Remove first row
+df_fixed <- df[-c(1), ]
+# subset dataset for #11
+q11_df <- df_fixed %>%
+  select(	
+   diet = `A healthful well-balanced diet consists of a daily intake from all food groups with an emphasis on fresh produce, lean protein, whole grains and heart-healthy unsaturated oils; keeping sugar, sodium and saturated fat to a minimum.Based on the aforementioned parameters, how would you rate your own dietary intake?`,
+   gender =`What is your gender?`) %>%
+  filter(!(is.na(gender))) %>%
+  filter(gender == 'Male'| gender == 'Female') %>%   # only focused on male and female data
+  filter(!(is.na(diet)))   # 16 NAs filtered in culture
+
+# set vars as factor
+q11_df$diet <- as.factor(q11_df$diet)
+q11_df$gender <- as.factor(q11_df$gender)
+  
+q11_df
+
+```
+
+```{r}
+# based on count
+q11_df %>% ggplot(mapping = aes(x = diet)) +
+  geom_bar(aes(fill = diet)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "How would you rate your own dietary intake?") +
+  theme(legend.position="none")
+# add sub title for No. of participants
+
+# based on count
+q11_df %>% ggplot(mapping = aes(x = diet)) +
+  geom_bar(aes(fill = gender)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "How would you rate your own dietary intake?")
+```
+
+```{r}
+# based on proportion
+q11_df %>% filter(gender == 'Female') %>%
+   ggplot(mapping = aes(x = diet, 
+                        y = prop.table(stat(count)),
+                        fill = diet,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Female") +
+   theme(legend.position="none")
+```
+
+```{r}
+# based on proportion
+q11_df %>% filter(gender == 'Male') %>%
+   ggplot(mapping = aes(x = diet, 
+                        y = prop.table(stat(count)),
+                        fill = diet,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Male") +
+   theme(legend.position="none")
+
+```
+**Chi-squared test**
+
+```{r}
+#str(q4_df)
+res <- chisq.test(q11_df$gender, q11_df$diet)
+# Access to the GoF values
+res$expected
+res$observed
+res$stdres
+# output
+res
+```
+
+```{r}
+tbl <- table(q11_df$diet, q11_df$gender)
+chisq.test(tbl)
+
+pairwiseNominalIndependence(tbl,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE ,
+                            method = "bonferroni")
+```
 
 
 
