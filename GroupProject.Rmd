@@ -28,6 +28,20 @@ head(df)
 # test
 ```
 
+```{r q2}
+df_fixed <- df[-c(1), ]
+glimpse(df_fixed)
+
+df_fixed %>%
+  select(
+    info = `There are many ways to get health information on campus. Which way would you most prefer?`,
+    other = ...36,
+    gender = 'What is your gender?') %>%
+  filter(!(is.na(gender))) %>% #removing responses without gender
+  filter(gender == 'Male'| gender == 'Female') 
+```
+
+
 #7 using # 23 data(gender - m/f)
 
 ```{r}
@@ -193,9 +207,10 @@ victoria_df %>%
 ggplot(mapping = aes(x = lifestyle,
 label = stat(count))) +
 geom_bar(aes(fill = lifestyle)) +
-labs(x = "Survey Response (N = 1311)", # maybe change with a formula
-y = "Number of responses",
-title = "In which of the following categories do you place yourself?") +
+labs(x = element_blank(),
+  y = "Number of responses",
+     title = "Overall Summary",
+subtitle = "No. of Participants: 1,311") +
 theme(legend.position="none",
 axis.text.x = element_text( hjust=0.5)) + # center align the axis labels
 geom_text(stat = 'count',
@@ -208,7 +223,8 @@ labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
 "I am thinking about \nchanging some of my \nhealth behaviors",
 "I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
 "I have made some \nhealth behavior \nchanges within \nthe last 6 months",
-"I have been living \na healthy lifestyle \nfor at least 6 months"))
+"I have been living \na healthy lifestyle \nfor at least 6 months")) 
+  ggsave("q5overallcount.png", width = 6, height = 4)
 ```
 
 ```{r option1: facet wrap}
@@ -234,7 +250,7 @@ legend.title = element_blank(),
 legend.text = element_text(lineheight = .8),
 axis.text.x = element_blank(),
 axis.ticks.x = element_blank()) +
-scale_fill_discrete(
+scale_fill_discrete( 
 labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
 "I am thinking about \nchanging some of my \nhealth behaviors",
 "I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
@@ -247,27 +263,30 @@ labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
 victoria_df %>%
 #  filter(gender == 'Male') %>%
 ggplot(mapping = aes(x = lifestyle,
-y = prop.table(stat(count)),
-fill = gender,
-label = scales::percent(prop.table(stat(count))))) +
-geom_bar(position = "dodge") +
-geom_text(stat = 'count',
-position = position_dodge(.9),
-vjust = -0.5,
-size = 3) +
-scale_y_continuous(labels = scales::percent) +
-labs(x = "Survey Response",
-y = "Proportion of responses",
-title = "Response by Gender") +
-theme(legend.position="none",
-axis.text.x = element_text( hjust=0.5)) + # center align the axis text)
-# my variable names are really long
-scale_x_discrete(
+                     y = prop.table(stat(count)),
+                     fill = gender,
+                     label = scales::percent(prop.table(stat(count))))) +
+  geom_bar(position = "dodge") +
+  geom_text(stat = 'count',
+            position = position_dodge(.9),
+            vjust = -0.5,
+            size = 3) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = element_blank(),
+       y = "Proportion of responses",
+       title = "Stratified Analysis by Gender",
+       subtitle = "Q5: 902 females & 409 males") +
+  theme(legend.position="right",
+        axis.text.x = element_text(hjust=0.5)) + # center align the axis text)
+  # my variable names are really long
+  scale_x_discrete(
 labels = c("I am not interested \nin pursuing a \nhealthier lifestyle",
 "I am thinking about \nchanging some of my \nhealth behaviors",
 "I am planning on \nmaking a health \nbehavior change within \nthe next 30 days",
 "I have made some \nhealth behavior \nchanges within \nthe last 6 months",
 "I have been living \na healthy lifestyle \nfor at least 6 months"))
+
+ggsave("q5gender.png", width = 6, height = 4)
 ```
 
 ```{r chisquared test}
