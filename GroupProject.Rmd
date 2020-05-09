@@ -1,6 +1,6 @@
 ---
 title: "GroupProject"
-author: "Jun Hernandez, Victoria Rios, "
+author: "Jun Hernandez, Victoria Rios, Misha Khan, Sharvee Joshi, Awad Rula"
 date: "May 6, 2020"
 output: pdf_document
 ---
@@ -149,6 +149,7 @@ pairwiseNominalIndependence(tbl,
 
 
 
+**Question 5**
 
 #5 using data from column 22  
 In which of the following categories do you place yourself?  
@@ -289,7 +290,7 @@ Frequency distributions are significantly different between males and females (c
 
 
 
-
+**Question 7**
 #7 using # 23 data(gender - m/f)
 
 ```{r q7}
@@ -423,6 +424,119 @@ res
 ```
 The frequency distributions are significantly different between females and males (chi-squared test p-value = 0.0001). More women agree and strongly agree that UCR has a culture and environment that promotes and supports health and well-being for its faculty, staff and students, while more men disagree, strongly disagree, and are neutral to the statement. 
 
+
+**Question 10**
+
+#10 using # 23 data(gender - m/f)
+
+```{r}
+# get rid of first row
+df_fixed <- df[-c(1), ]
+# subset dataset for #7
+char_df <- df_fixed %>%
+  select(	
+  health = `In general, how would you describe your overall health?`,
+   gender =`What is your gender?`) %>%
+  filter(!(is.na(gender))) %>%
+  filter(gender == 'Male'| gender == 'Female') %>%   # only focused on male and female data
+  filter(!(is.na(health)))   # 16 NAs filtered in health
+
+# set vars as factor
+char_df$health <- as.factor(char_df$health)
+char_df$gender <- as.factor(char_df$gender)
+  
+char_df
+
+#unique(char_df$gender)
+#unique(char_df$health)
+```
+
+
+```{r}
+# based on count
+char_df %>% ggplot(mapping = aes(x = health)) +
+  geom_bar(aes(fill = health)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "
+In general, how would you describe your overall health?") +
+  theme(legend.position="none")
+# add sub title for No. of participants
+
+# based on count
+char_df %>% ggplot(mapping = aes(x = health)) +
+  geom_bar(aes(fill = gender)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "In general, how would you describe your overall health?") 
+```
+
+```{r}
+# based on proportion
+char_df %>% filter(gender == 'Female') %>%
+   ggplot(mapping = aes(x = health, 
+                        y = prop.table(stat(count)),
+                        fill = health,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Female") +
+   theme(legend.position="none")
+```
+
+```{r}
+# based on proportion
+char_df %>% filter(gender == 'Male') %>%
+   ggplot(mapping = aes(x = health, 
+                        y = prop.table(stat(count)),
+                        fill = health,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Male") +
+   theme(legend.position="none")
+
+```
+
+
+
+**Chi-squared test**
+
+```{r}
+#str(char_df)
+res <- chisq.test(char_df$gender, char_df$health)
+# Access to the GoF values
+res$expected
+res$observed
+res$stdres
+# output
+res
+```
+
+
+```{r}
+tbl <- table(char_df$health, char_df$gender)
+chisq.test(tbl)
+
+
+pairwiseNominalIndependence(tbl,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE,
+                            method = "bonferroni")
+```
 
 **Question 11**
 
