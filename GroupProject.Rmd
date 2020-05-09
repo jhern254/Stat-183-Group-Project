@@ -18,7 +18,7 @@ library(readxl)
 library(rcompanion)
 ```
 
-```{r}
+```{r orig_data}
 # read in xlsx data set
 df <- read_excel("/Users/junhernandez/Documents/A\ -\ Current\ Quarter/Stat\ 183/Group\ Project/all\ responses\ data\ team\ 1.xlsx") # change for your computer
 
@@ -28,9 +28,9 @@ head(df)
 # test
 ```
 
-**Q1**
+**Question 1**
 
-**Q2**
+**Question 2**
 
 ```{r q2}
 df_fixed <- df[-c(1), ]
@@ -44,7 +44,6 @@ df_fixed %>%
   filter(!(is.na(gender))) %>% #removing responses without gender
   filter(gender == 'Male'| gender == 'Female') 
 ```
-
 
 ```{r}
 # Remove first row
@@ -147,7 +146,108 @@ pairwiseNominalIndependence(tbl,
                             method = "bonferroni")
 ```
 
+**Question 4**
+```{r}
+# Remove first row
+df_fixed <- df[-c(1), ]
+# subset dataset for #4
+q4_df <- df_fixed %>%
+  select(	
+   wellness = `How helpful have current wellness programs been in helping you reach your wellness goals?`,
+   gender =`What is your gender?`) %>%
+  filter(!(is.na(gender))) %>%
+  filter(gender == 'Male'| gender == 'Female') %>%   # only focused on male and female data
+  filter(!(is.na(wellness)))   # 16 NAs filtered in culture
 
+# set vars as factor
+q4_df$wellness <- as.factor(q4_df$wellness)
+q4_df$gender <- as.factor(q4_df$gender)
+  
+q4_df
+
+
+```
+
+```{r}
+# based on count
+q4_df %>% ggplot(mapping = aes(x = wellness)) +
+  geom_bar(aes(fill = wellness)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "How helpful have current wellness programs been in helping you reach your wellness goals?") + theme(axis.text.x=element_text(angle=90,hjust=1)) +
+  theme(legend.position="none")
+# add sub title for No. of participants
+
+# based on count
+q4_df %>% ggplot(mapping = aes(x = wellness, y = prop.table(stat(count)))) + theme(axis.text.x=element_text(hjust=0.5)) +  scale_x_discrete(labels= c("Extremely \nhelpful", "I have not \nparticipated in \ncurrent programs", "Not at all", "Only slightly \nhelpful", "Somewhat \nhelpful")) + scale_y_continuous(labels = scales::percent) +
+  geom_bar(aes(fill = gender)) + 
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       subtitle = "Question 4",
+       title = "Stratified Analysis by Gender") 
+```
+
+```{r}
+# based on proportion
+q4_df %>% filter(gender == 'Female') %>%
+   ggplot(mapping = aes(x = wellness, 
+                        y = prop.table(stat(count)),
+                        fill = wellness,
+                        label = scales::percent(prop.table(stat(count))))) + theme(axis.text.x=element_text(hjust=0.5)) +  scale_x_discrete(labels= c("Extremely \nhelpful", "I have not \nparticipated in \ncurrent programs", "Not at all", "Only slightly \nhelpful", "Somewhat \nhelpful")) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Female") +
+   theme(legend.position="none")
+```
+
+```{r}
+# based on proportion
+q4_df %>% filter(gender == 'Male') %>%
+   ggplot(mapping = aes(x = wellness, 
+                        y = prop.table(stat(count)),
+                        fill = wellness,
+                        label = scales::percent(prop.table(stat(count))))) + theme(axis.text.x=element_text(hjust=0.5)) +  scale_x_discrete(labels= c("Extremely \nhelpful", "I have not \nparticipated in \ncurrent programs", "Not at all", "Only slightly \nhelpful", "Somewhat \nhelpful")) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Male") +
+   theme(legend.position="none")
+
+```
+**Chi-squared test**
+
+```{r}
+#str(q4_df)
+res <- chisq.test(q4_df$gender, q4_df$wellness)
+# Access to the GoF values
+res$expected
+res$observed
+res$stdres
+# output
+res
+```
+
+```{r}
+tbl <- table(q4_df$wellness, q4_df$gender)
+chisq.test(tbl)
+
+pairwiseNominalIndependence(tbl,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE ,
+                            method = "bonferroni")
+```
 
 **Question 5**
 
@@ -287,9 +387,6 @@ pairwiseNominalIndependence(victoria_tbl,
 
 Frequency distributions are significantly different between males and females (chi-square test p-value = .0013). More women (24%) than men(9%) state that they have been living a healthy lifestyle for at least 6 months.  
 
-
-
-
 **Question 7**
 #7 using # 23 data(gender - m/f)
 
@@ -423,7 +520,6 @@ res$stdres
 res
 ```
 The frequency distributions are significantly different between females and males (chi-squared test p-value = 0.0001). More women agree and strongly agree that UCR has a culture and environment that promotes and supports health and well-being for its faculty, staff and students, while more men disagree, strongly disagree, and are neutral to the statement. 
-
 
 **Question 10**
 
