@@ -46,6 +46,110 @@ df_fixed %>%
 ```
 
 
+```{r}
+# Remove first row
+df_fixed <- df[-c(1), ]
+# subset dataset for #4
+q2_df <- df_fixed %>%
+  select(	
+   info = `There are many ways to get health information on campus. Which way would you most prefer?`,
+   gender =`What is your gender?`) %>%
+  filter(!(is.na(gender))) %>%
+  filter(gender == 'Male'| gender == 'Female') %>%   # only focused on male and female data
+  filter(!(is.na(info)))   # 16 NAs filtered in culture
+
+# set vars as factor
+q2_df$info <- as.factor(q2_df$info)
+q2_df$gender <- as.factor(q2_df$gender)
+  
+q2_df
+
+
+```
+
+```{r}
+# based on count
+q2_df %>% ggplot(mapping = aes(x = info)) +
+  geom_bar(aes(fill = info)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "There are many ways to get health information on campus. Which way would you most prefer?") +
+  theme(legend.position="none")
+# add sub title for No. of participants
+
+# based on count
+q2_df %>% ggplot(mapping = aes(x = info)) +
+  geom_bar(aes(fill = gender)) +
+  labs(x = "Survey Response", 
+       y = "Number of responses", 
+       title = "There are many ways to get health information on campus. Which way would you most prefer?") 
+```
+
+```{r}
+# based on proportion
+q2_df %>% filter(gender == 'Female') %>%
+   ggplot(mapping = aes(x = info, 
+                        y = prop.table(stat(count)),
+                        fill = info,
+                        label = scales::percent(prop.table(stat(count))))) + theme(axis.text.x=element_text(angle=90,hjust=1)) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Female") +
+   theme(legend.position="none")
+```
+
+```{r}
+# based on proportion
+q2_df %>% filter(gender == 'Male') %>%
+   ggplot(mapping = aes(x = info, 
+                        y = prop.table(stat(count)),
+                        fill = info,
+                        label = scales::percent(prop.table(stat(count))))) +
+   geom_bar(position = "dodge") + 
+   geom_text(stat = 'count',
+              position = position_dodge(.9), 
+              vjust = -0.5, 
+              size = 3) + 
+   scale_y_continuous(labels = scales::percent) +
+   labs(x = "Survey Response", 
+       y = "Proportion of responses", 
+       title = "Male") +
+   theme(legend.position="none")
+
+```
+**Chi-squared test**
+
+```{r}
+#str(q2_df)
+res <- chisq.test(q2_df$gender, q2_df$info)
+# Access to the GoF values
+res$expected
+res$observed
+res$stdres
+# output
+res
+```
+
+```{r}
+tbl <- table(q2_df$info, q2_df$gender)
+chisq.test(tbl)
+
+pairwiseNominalIndependence(tbl,
+                            fisher = FALSE,
+                            gtest  = FALSE,
+                            chisq  = TRUE ,
+                            method = "bonferroni")
+```
+
+
+
+
 #5 using data from column 22  
 In which of the following categories do you place yourself?  
 
